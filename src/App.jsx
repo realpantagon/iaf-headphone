@@ -34,22 +34,28 @@ function App() {
 
   const handleBorrowSubmit = async (e) => {
     e.preventDefault();
-    setBorrowHeadphoneId(
-      (parseInt(borrowHeadphoneId) + 1).toString().padStart(3, "0")
-    );
-
+  
+    const numbersToSkip = ["051", "052", "053", "392", "393", "394"];
+    let nextId = (parseInt(borrowHeadphoneId) + 1).toString().padStart(3, "0");
+  
+    while (numbersToSkip.includes(nextId)) {
+      nextId = (parseInt(nextId) + 1).toString().padStart(3, "0");
+    }
+  
+    setBorrowHeadphoneId(nextId);
+  
     const record = {
       records: [
         {
           fields: {
-            "Headphone ID": borrowHeadphoneId,
+            "Headphone ID": nextId,
             "IAF-ID": borrowInputId,
             Status: "Borrow",
           },
         },
       ],
     };
-
+  
     setBorrowInputId("");
     try {
       const response = await axios.post(
