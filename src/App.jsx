@@ -34,28 +34,34 @@ function App() {
 
   const handleBorrowSubmit = async (e) => {
     e.preventDefault();
-  
+
+    let curId = (parseInt(borrowHeadphoneId) + 1)
+      .toString()
+      .padStart(3, "0");
+
     const numbersToSkip = ["051", "052", "053", "392", "393", "394"];
-    let nextId = (parseInt(borrowHeadphoneId) + 1).toString().padStart(3, "0");
-  
+    let nextId = (parseInt(borrowHeadphoneId) + 1)
+      .toString()
+      .padStart(3, "0");
+
     while (numbersToSkip.includes(nextId)) {
       nextId = (parseInt(nextId) + 1).toString().padStart(3, "0");
     }
-  
+
     setBorrowHeadphoneId(nextId);
-  
+
     const record = {
       records: [
         {
           fields: {
-            "Headphone ID": nextId,
+            "Headphone ID": borrowHeadphoneId,
             "IAF-ID": borrowInputId,
             Status: "Borrow",
           },
         },
       ],
     };
-  
+
     setBorrowInputId("");
     try {
       const response = await axios.post(
@@ -89,7 +95,7 @@ function App() {
           },
         }
       );
-  
+
       if (response.data.records.length > 0) {
         // Find the latest record with the given headphone ID
         const latestRecord = response.data.records.reduce((latest, current) => {
@@ -97,15 +103,15 @@ function App() {
             ? current
             : latest;
         });
-  
+
         const recordId = latestRecord.id;
-  
+
         const updateRecord = {
           fields: {
             Status: "Return",
           },
         };
-  
+
         await axios.patch(
           `https://api.airtable.com/v0/appo4h23QGedx6uR0/Headphone/${recordId}`,
           updateRecord,
@@ -127,13 +133,17 @@ function App() {
   };
 
   return (
-    <div className="container mx-auto p-4 bg-gray-100 min-h-screen">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white p-4 rounded shadow">
+    <div className="mx-auto p-6 bg-gray-100 min-h-screen w-full">
+      <div className="grid grid-cols-2 gap-8">
+        <div className="bg-white p-6 rounded shadow">
           <form onSubmit={handleBorrowSubmit}>
-            <h1 className="text-2xl font-bold mb-4 text-center text-blue-600">BORROW</h1>
-            <div className="mb-4">
-              <label className="block mb-2 text-lg font-semibold text-gray-700">Headphone ID: </label>
+            <h1 className="text-3xl font-bold mb-6 text-center text-amber-500">
+              Borrow Headphone
+            </h1>
+            <div className="mb-6">
+              <label className="block mb-2 text-lg font-semibold text-gray-700">
+                Headphone ID:
+              </label>
               <input
                 type="text"
                 value={borrowHeadphoneId}
@@ -143,11 +153,13 @@ function App() {
                     handleBorrowSubmit(e);
                   }
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-600"
               />
             </div>
-            <div className="mb-4">
-              <label className="block mb-2 text-lg font-semibold text-gray-700">IAF-ID: </label>
+            <div className="mb-6">
+              <label className="block mb-2 text-lg font-semibold text-gray-700">
+                IAF-ID:
+              </label>
               <input
                 type="text"
                 value={borrowInputId}
@@ -157,16 +169,20 @@ function App() {
                     handleBorrowSubmit(e);
                   }
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-600"
               />
             </div>
           </form>
         </div>
-        <div className="bg-white p-4 rounded shadow">
+        <div className="bg-white p-6 rounded shadow">
           <form onSubmit={handleReturnSubmit}>
-            <h1 className="text-2xl font-bold mb-4 text-center text-green-600">RETURN</h1>
-            <div className="mb-4">
-              <label className="block mb-2 text-lg font-semibold text-gray-700">Headphone ID: </label>
+            <h1 className="text-3xl font-bold mb-6 text-center text-emerald-800">
+              Return Headphone
+            </h1>
+            <div className="mb-6">
+              <label className="block mb-2 text-lg font-semibold text-gray-700">
+                Headphone ID:
+              </label>
               <input
                 type="text"
                 value={returnHeadphoneId}
@@ -176,20 +192,28 @@ function App() {
                     handleReturnSubmit(e);
                   }
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+                className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-600"
               />
             </div>
           </form>
         </div>
       </div>
-      <div className="mt-8">
-        <h2 className="text-xl font-bold mb-4 text-center text-gray-800">Record List</h2>
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold mb-6 text-center text-emerald-800">
+          Headphone Records
+        </h2>
         <table className="w-full border-collapse bg-white rounded shadow">
           <thead>
             <tr>
-              <th className="px-4 py-2 bg-gray-100 text-gray-800 font-semibold border-b">Headphone ID</th>
-              <th className="px-4 py-2 bg-gray-100 text-gray-800 font-semibold border-b">IAF-ID</th>
-              <th className="px-4 py-2 bg-gray-100 text-gray-800 font-semibold border-b">Status</th>
+              <th className="px-6 py-4 bg-emerald-800 text-white font-semibold border-b">
+                Headphone ID
+              </th>
+              <th className="px-6 py-4 bg-emerald-800 text-white font-semibold border-b">
+                IAF-ID
+              </th>
+              <th className="px-6 py-4 bg-emerald-800 text-white font-semibold border-b">
+                Status
+              </th>
             </tr>
           </thead>
           <tbody className="max-h-64 overflow-y-auto">
@@ -199,11 +223,17 @@ function App() {
               )
               .map((record) => (
                 <tr key={record.id} className="border-b hover:bg-gray-100">
-                  <td className="px-4 py-2 text-gray-800 text-center">{record.fields["Headphone ID"]}</td>
-                  <td className="px-4 py-2 text-gray-800 text-center">{record.fields["IAF-ID"]}</td>
+                  <td className="px-6 py-4 text-gray-800 text-center">
+                    {record.fields["Headphone ID"]}
+                  </td>
+                  <td className="px-6 py-4 text-gray-800 text-center">
+                    {record.fields["IAF-ID"]}
+                  </td>
                   <td
-                    className={`px-4 py-2 font-semibold text-center ${
-                      record.fields["Status"] === "Return" ? "text-green-600" : "text-red-600"
+                    className={`px-6 py-4 font-semibold text-center ${
+                      record.fields["Status"] === "Return"
+                        ? "text-emerald-600"
+                        : "text-red-600"
                     }`}
                   >
                     {record.fields["Status"]}
