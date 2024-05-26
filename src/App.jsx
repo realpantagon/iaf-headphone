@@ -83,16 +83,23 @@ function App() {
           },
         }
       );
-
+  
       if (response.data.records.length > 0) {
-        const recordId = response.data.records[0].id;
-
+        // Find the latest record with the given headphone ID
+        const latestRecord = response.data.records.reduce((latest, current) => {
+          return new Date(current.createdTime) > new Date(latest.createdTime)
+            ? current
+            : latest;
+        });
+  
+        const recordId = latestRecord.id;
+  
         const updateRecord = {
           fields: {
             Status: "Return",
           },
         };
-
+  
         await axios.patch(
           `https://api.airtable.com/v0/appo4h23QGedx6uR0/Headphone/${recordId}`,
           updateRecord,
@@ -114,66 +121,69 @@ function App() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 bg-gray-100 min-h-screen">
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-gray-100 p-4 rounded">
+        <div className="bg-white p-4 rounded shadow">
           <form onSubmit={handleBorrowSubmit}>
-            <h1 className="text-2xl font-bold mb-4">BORROW</h1>
+            <h1 className="text-2xl font-bold mb-4 text-center text-blue-600">BORROW</h1>
             <div className="mb-4">
-              <label className="block mb-2">Headphone ID: </label>
+              <label className="block mb-2 text-lg font-semibold text-gray-700">Headphone ID: </label>
               <input
                 type="text"
                 value={borrowHeadphoneId}
                 onChange={(e) => setBorrowHeadphoneId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleBorrowSubmit(e);
+                  }
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
             <div className="mb-4">
-              <label className="block mb-2">Enter ID: </label>
+              <label className="block mb-2 text-lg font-semibold text-gray-700">IAF-ID: </label>
               <input
                 type="text"
                 value={borrowInputId}
                 onChange={(e) => setBorrowInputId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleBorrowSubmit(e);
+                  }
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded"
-            >
-              Submit
-            </button>
           </form>
         </div>
-        <div className="bg-gray-100 p-4 rounded">
+        <div className="bg-white p-4 rounded shadow">
           <form onSubmit={handleReturnSubmit}>
-            <h1 className="text-2xl font-bold mb-4">RETURN</h1>
+            <h1 className="text-2xl font-bold mb-4 text-center text-green-600">RETURN</h1>
             <div className="mb-4">
-              <label className="block mb-2">Headphone ID: </label>
+              <label className="block mb-2 text-lg font-semibold text-gray-700">Headphone ID: </label>
               <input
                 type="text"
                 value={returnHeadphoneId}
                 onChange={(e) => setReturnHeadphoneId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleReturnSubmit(e);
+                  }
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
               />
             </div>
-
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded"
-            >
-              Submit
-            </button>
           </form>
         </div>
       </div>
       <div className="mt-8">
-        <h2 className="text-xl font-bold mb-4">Record List</h2>
-        <table className="w-full border-collapse">
+        <h2 className="text-xl font-bold mb-4 text-center text-gray-800">Record List</h2>
+        <table className="w-full border-collapse bg-white rounded shadow">
           <thead>
             <tr>
-              <th className="px-4 py-2 bg-gray-100 border-b">Headphone ID</th>
-              <th className="px-4 py-2 bg-gray-100 border-b">Status</th>
+              <th className="px-4 py-2 bg-gray-100 text-gray-800 font-semibold border-b">Headphone ID</th>
+              <th className="px-4 py-2 bg-gray-100 text-gray-800 font-semibold border-b">IAF-ID</th>
+              <th className="px-4 py-2 bg-gray-100 text-gray-800 font-semibold border-b">Status</th>
             </tr>
           </thead>
           <tbody className="max-h-64 overflow-y-auto">
@@ -182,11 +192,12 @@ function App() {
                 a.fields["Headphone ID"].localeCompare(b.fields["Headphone ID"])
               )
               .map((record) => (
-                <tr key={record.id}>
-                  <td className="px-4 py-2 border-b">{record.fields["Headphone ID"]}</td>
+                <tr key={record.id} className="border-b hover:bg-gray-100">
+                  <td className="px-4 py-2 text-gray-800 text-center">{record.fields["Headphone ID"]}</td>
+                  <td className="px-4 py-2 text-gray-800 text-center">{record.fields["IAF-ID"]}</td>
                   <td
-                    className={`px-4 py-2 border-b ${
-                      record.fields["Status"] === "Return" ? "text-green-500" : "text-red-500"
+                    className={`px-4 py-2 font-semibold text-center ${
+                      record.fields["Status"] === "Return" ? "text-green-600" : "text-red-600"
                     }`}
                   >
                     {record.fields["Status"]}
