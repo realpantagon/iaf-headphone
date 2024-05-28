@@ -39,14 +39,17 @@ function App() {
       .toString()
       .padStart(3, "0");
 
-    const numbersToSkip = [ "401","402","403","404","405","406","407","408","409","410","411","412","413","414","415","416","417","418","419","420","421","422","423","424","357","368","391","392","393","394"];
+      const numbersToSkip = [
+        "401", "402", "403", "404", "405", "406", "407", "408", "409", "410",
+        "411", "412", "413", "414", "415", "53", "114"
+      ];
     let nextId = (parseInt(borrowHeadphoneId) + 1)
       .toString()
       .padStart(3, "0");
 
-    while (numbersToSkip.includes(nextId)) {
-      nextId = (parseInt(nextId) + 1).toString().padStart(3, "0");
-    }
+      while (numbersToSkip.includes(nextId)) {
+        nextId = (parseInt(nextId) + 1).toString().padStart(3, "0");
+      }
 
     setBorrowHeadphoneId(nextId);
 
@@ -217,30 +220,28 @@ function App() {
             </tr>
           </thead>
           <tbody className="max-h-64 overflow-y-auto">
-            {records
-              .sort((a, b) =>
-                a.fields["Headphone ID"].localeCompare(b.fields["Headphone ID"])
-              )
-              .map((record) => (
-                <tr key={record.id} className="border-b hover:bg-gray-100">
-                  <td className="px-6 py-4 text-gray-800 text-center">
-                    {record.fields["Headphone ID"]}
-                  </td>
-                  <td className="px-6 py-4 text-gray-800 text-center">
-                    {record.fields["IAF-ID"]}
-                  </td>
-                  <td
-                    className={`px-6 py-4 font-semibold text-center ${
-                      record.fields["Status"] === "Return"
-                        ? "text-emerald-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {record.fields["Status"]}
-                  </td>
-                </tr>
-              ))}
-          </tbody>
+  {records
+    .sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime))
+    .map((record) => (
+      <tr key={record.id} className="border-b hover:bg-gray-100">
+        <td className="px-6 py-4 text-gray-800 text-center">
+          {record.fields["Headphone ID"]}
+        </td>
+        <td className="px-6 py-4 text-gray-800 text-center">
+          {record.fields["IAF-ID"]}
+        </td>
+        <td
+          className={`px-6 py-4 font-semibold text-center ${
+            record.fields["Status"] === "Return"
+              ? "text-emerald-600"
+              : "text-red-600"
+          }`}
+        >
+          {record.fields["Status"]}
+        </td>
+      </tr>
+    ))}
+</tbody>
         </table>
       </div>
     </div>
