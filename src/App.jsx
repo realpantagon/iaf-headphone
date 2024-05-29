@@ -5,8 +5,9 @@ function App() {
   const [borrowHeadphoneId, setBorrowHeadphoneId] = useState("001");
   const [borrowInputId, setBorrowInputId] = useState("");
 
-  const [returnHeadphoneId, setReturnHeadphoneId] = useState("");
+  const [returnAutoHeadphoneId, setReturnAutoHeadphoneId] = useState("001");
   const [returnInputId, setReturnInputId] = useState("");
+  const [skipNext, setSkipNext] = useState(false);
 
   const [records, setRecords] = useState([]);
 
@@ -39,17 +40,17 @@ function App() {
       .toString()
       .padStart(3, "0");
 
-      const numbersToSkip = [
-        "401", "402", "403", "404", "405", "406", "407", "408", "409", "410",
-        "411", "412", "413", "414", "415", "53", "114"
-      ];
+    const numbersToSkip = [
+      "401", "402", "403", "404", "405", "406", "407", "408", "409", "410",
+      "411", "412", "413", "414", "415", "53", "114"
+    ];
     let nextId = (parseInt(borrowHeadphoneId) + 1)
       .toString()
       .padStart(3, "0");
 
-      while (numbersToSkip.includes(nextId)) {
-        nextId = (parseInt(nextId) + 1).toString().padStart(3, "0");
-      }
+    while (numbersToSkip.includes(nextId)) {
+      nextId = (parseInt(nextId) + 1).toString().padStart(3, "0");
+    }
 
     setBorrowHeadphoneId(nextId);
 
@@ -86,10 +87,23 @@ function App() {
 
   const handleReturnSubmit = async (e) => {
     e.preventDefault();
-    setReturnHeadphoneId("");
+    setReturnInputId("");
+
+    // Increment the return headphone ID
+    let nextReturnId = (parseInt(returnAutoHeadphoneId) + 1).toString().padStart(3, "0");
+
+    // Skip the next number if the flag is set
+    if (skipNext) {
+      setReturnAutoHeadphoneId(nextReturnId);
+      setSkipNext(false);
+      return;
+    }
+
+    setReturnAutoHeadphoneId(nextReturnId);
+
     try {
       const response = await axios.get(
-        `https://api.airtable.com/v0/appo4h23QGedx6uR0/Headphone?filterByFormula={Headphone ID}='${returnHeadphoneId}'`,
+        `https://api.airtable.com/v0/appo4h23QGedx6uR0/Headphone?filterByFormula={Headphone ID}='${returnAutoHeadphoneId}'`,
         {
           headers: {
             Authorization:
@@ -188,8 +202,8 @@ function App() {
               </label>
               <input
                 type="text"
-                value={returnHeadphoneId}
-                onChange={(e) => setReturnHeadphoneId(e.target.value)}
+                value={returnAutoHeadphoneId}
+                onChange={(e) => setReturnAutoHeadphoneId(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     handleReturnSubmit(e);
@@ -198,6 +212,16 @@ function App() {
                 className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-600"
               />
             </div>
+            <button
+              type="button"
+              onClick={() => {
+                let nextReturnId = (parseInt(returnAutoHeadphoneId) + 1).toString().padStart(3, "0");
+                setReturnAutoHeadphoneId(nextReturnId);
+              }}
+              className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+            >
+              Skip Next
+            </button>
           </form>
         </div>
       </div>
@@ -220,28 +244,28 @@ function App() {
             </tr>
           </thead>
           <tbody className="max-h-64 overflow-y-auto">
-  {records
-    .sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime))
-    .map((record) => (
-      <tr key={record.id} className="border-b hover:bg-gray-100">
-        <td className="px-6 py-4 text-gray-800 text-center">
-          {record.fields["Headphone ID"]}
-        </td>
-        <td className="px-6 py-4 text-gray-800 text-center">
-          {record.fields["IAF-ID"]}
-        </td>
-        <td
-          className={`px-6 py-4 font-semibold text-center ${
-            record.fields["Status"] === "Return"
-              ? "text-emerald-600"
-              : "text-red-600"
-          }`}
-        >
-          {record.fields["Status"]}
-        </td>
-      </tr>
-    ))}
-</tbody>
+            {records
+              .sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime))
+              .map((record) => (
+                <tr key={record.id} className="border-b hover:bg-gray-100">
+                  <td className="px-6 py-4 text-gray-800 text-center">
+                    {record.fields["Headphone ID"]}
+                  </td>
+                  <td className="px-6 py-4 text-gray-800 text-center">
+                    {record.fields["IAF-ID"]}
+                  </td>
+                  <td
+                    className={`px-6 py-4 font-semibold text-center ${
+                      record.fields["Status"] === "Return"
+                        ? "text-emerald-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {record.fields["Status"]}
+                  </td>
+                </tr>
+              ))}
+          </tbody>
         </table>
       </div>
     </div>
